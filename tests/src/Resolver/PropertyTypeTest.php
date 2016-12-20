@@ -26,6 +26,7 @@ namespace Datto\Cinnabari\Tests;
 
 use \Mockery;
 use Datto\Cinnabari\Parser;
+use Datto\Cinnabari\Schema;
 use Datto\Cinnabari\Resolver\PropertyType;
 use Datto\Cinnabari\Resolver\ResolverInterface;
 
@@ -43,15 +44,52 @@ class PropertyTypeTest extends \PHPUnit_Framework_TestCase
     public function applyProvider()
     {
         return array(
-            'Happy Path 1' => array(
-                'schema' => $this->getSchema(),
+            'Simple...' => array(
+                'schemaData' => array(
+                    'devices' => array('Device', 'Devices'),
+                ),
+                'request' => array(
+                    Parser::TYPE_FUNCTION,
+                    'get',
+                    array(
+                        array(Parser::TYPE_PROPERTY, 'devices')
+                    )
+                ),
+                'expected' => array(
+                    Parser::TYPE_FUNCTION,
+                    'get',
+                    array(
+                        array(Parser::TYPE_PROPERTY, 'devices', 'Device')
+                    )
+                ),
+            ),
+            'Deeper...' => array(
+                'schemaData' => array(
+                    'devices' => array('Device', 'Devices'),
+                    'devices.id' => array(Schema::TYPE_INTEGER, 'Id')
+                ),
                 'request' => array(
                     Parser::TYPE_FUNCTION,
                     'get',
                     array(
                         array(
-                            Parser::TYPE_PROPERTY,
-                            'device'
+                            Parser::TYPE_FUNCTION,
+                            'filter',
+                            array(
+                                array (Parser::TYPE_PROPERTY, 'devices')
+                            ),
+                            array(
+                                array(
+                                    Parser::TYPE_FUNCTION,
+                                    'equals',
+                                    array(
+                                        array(Parser::TYPE_PROPERTY, 'id')
+                                    ),
+                                    array(
+                                        array(Parser::TYPE_PARAMETER, 'id')
+                                    ),
+                                )
+                            ),
                         )
                     )
                 ),
@@ -60,9 +98,23 @@ class PropertyTypeTest extends \PHPUnit_Framework_TestCase
                     'get',
                     array(
                         array(
-                            Parser::TYPE_PROPERTY,
-                            'device',
-                            'Device'
+                            Parser::TYPE_FUNCTION,
+                            'filter',
+                            array(
+                                array (Parser::TYPE_PROPERTY, 'devices', 'Device')
+                            ),
+                            array(
+                                array(
+                                    Parser::TYPE_FUNCTION,
+                                    'equals',
+                                    array(
+                                        array(Parser::TYPE_PROPERTY, 'id', Schema::TYPE_INTEGER)
+                                    ),
+                                    array(
+                                        array(Parser::TYPE_PARAMETER, 'id')
+                                    ),
+                                )
+                            ),
                         )
                     )
                 ),
@@ -73,61 +125,22 @@ class PropertyTypeTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider applyProvider
      *
-     * @param array $schema
+     * @covers ::apply
+     *
+     * @param array $schemaData
      * @param array $request
      * @param array $expected
-     *
-     * @covers ::apply
      */
-    public function testApply(array $schema, array $request, array $expected)
+    public function testApply(array $schemaData, array $request, array $expected)
     {
+        $schema = \Mockery::mock('\Datto\Cinnabari\Schema');
+        foreach ($schemaData as $key => $response) {
+            $schema->shouldReceive('getProperty')
+                ->with($key)
+                ->andReturn($response);
+        }
+
         $resolver = new PropertyType($schema);
         $this->assertEquals($expected, $resolver->apply($request));
-    }
-
-    /**
-     * Gets a shared schema for testApply, above
-     *
-     * @return array
-     */
-    private function getSchema()
-    {
-        return array(
-            'classes' => array(
-                'Agent' => array(
-                    'type' => array(
-                        'type' => 4,
-                        'path' => array('AgentType'),
-                        'description' => 'The type of this agent'
-                    ),
-                    'version' => array(
-                        'type' => 4,
-                        'path' => array('AgenctVersion')
-                    )
-                ),
-                'ProtectedMachine' => array(
-                    'agent' => array(
-                        'type' => 'Agent',
-                        'path' => array(),
-                        'description' => 'The software that sends backups from this protected machine to the device.'
-                    ),
-                    'hostname' => array(
-                        'type' => 4,
-                        'path' => array('Hostname'),
-                        'description' => 'The hostname of this protected machine.'
-                    ),
-			        'operatingSystem' => array(
-                        'type' => 4,
-				        'path' => array('OperatingSystem'),
-				        'description' => array('The operating system of this protected machine.')
-                    ),
-			        'volumes' => array(
-                        'type' => 'Volume',
-				        'path' => array('Volumes'),
-				        'description' => array('The volumes that exist on this protected machine.')
-                    )
-                )
-            )
-        );
     }
 }

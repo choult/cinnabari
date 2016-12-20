@@ -24,6 +24,7 @@
 
 namespace Datto\Cinnabari\Resolver;
 
+use Datto\Cinnabari\Schema;
 use Datto\Cinnabari\Parser;
 
 /**
@@ -37,7 +38,7 @@ class PropertyType implements ResolverInterface
     /**
      * The schema to be applied
      *
-     * @var array
+     * @var \Datto\Cinnabari\Schema
      */
     private $schema;
 
@@ -51,10 +52,9 @@ class PropertyType implements ResolverInterface
     /**
      * Constructs a new PropertyType Resolver
      *
-     * @param array $schema The main schema; as this class will work with the data directly, there's no need to abstract
-     *                      just the property information when passing it in.
+     * @param \Datto\Cinnabari\Schema $schema The main schema
      */
-    public function __construct(array $schema)
+    public function __construct(Schema $schema)
     {
         $this->schema = $schema;
     }
@@ -64,7 +64,7 @@ class PropertyType implements ResolverInterface
      */
     public function apply(array $request)
     {
-        $this->applyDeep($request, array());
+        return $this->applyDeep($request, array());
     }
 
     /**
@@ -92,15 +92,23 @@ class PropertyType implements ResolverInterface
      *
      * @return array
      */
-    public function applyDeep(array $token, array $context)
+    private function applyDeep(array $token, array $context)
     {
         switch ($token[0]) {
             case Parser::TYPE_FUNCTION: {
-                $token[2] = $this->applyChildren($token[2], array());
+                $token[2] = $this->applyChildren($token[2], $context);
+                if (count($token) > 3) {
+                    // The context for a function's trailing arguments is the property path of the first argument
+                    $context = $this->getFunctionContext($token, $context);
+                    for ($i = 3; $i < count($token); $i++) {
+                        $token[$i] = $this->applyChildren($token[$i], $context);
+                    }
+                }
+
                 break;
             }
             case Parser::TYPE_OBJECT: {
-                $token[1] = $this->applyChildren($token[1], array());
+                $token[1] = $this->applyChildren($token[1], $context);
                 break;
             }
             case Parser::TYPE_PROPERTY: {
@@ -113,6 +121,36 @@ class PropertyType implements ResolverInterface
     }
 
     /**
+     * Gets the context for a given function
+     *
+     * @param array $function   The function for which to determine the context
+     * @param array $context    The context that the function is already operating in
+     *
+     * @return array
+     */
+    private function getFunctionContext(array $function, array $context)
+    {
+        if (!count($function[2])) {
+            return $context;
+        }
+
+        $leftMost = $function[2][0];
+
+        switch ($leftMost[0]) {
+            case Parser::TYPE_FUNCTION: {
+                return $this->getFunctionContext($leftMost);
+                break;
+            }
+            case Parser::TYPE_PROPERTY: {
+                \array_unshift($context, $leftMost[1]);
+                return $context;
+            }
+        }
+
+        return $context;
+    }
+
+    /**
      * Gets the type of the passed token in the given context
      *
      * @param string $propertyName  The name of the property
@@ -122,35 +160,8 @@ class PropertyType implements ResolverInterface
      */
     private function getType($propertyName, array $context)
     {
-        $position = $this->getTypeTree();
-        foreach ($context as $node) {
-            if (!isset($position[\strtolower($node)])) {
-                return null;
-            }
-            $position = $position[\strtolower($node)];
-        }
-
-        return (isset($position[\strtolower($propertyName)])) ? $position[\strtolower($propertyName)] : null;
-    }
-
-    /**
-     * Processes the class schema into a more normalized form for walking
-     *
-     * @return array
-     */
-    private function getTypeTree()
-    {
-        if ($this->typeTree === null) {
-            $types = array();
-            foreach ($this->schema['classes'] as $class => $properties) {
-                $types[\strtolower($class)] = array();
-                foreach ($properties as $property => $type) {
-                    $types[\strtolower($class)][\strtolower($property)] = $type;
-                }
-            }
-            $this->typeTree = $types;
-        }
-
-        return $this->typeTree;
+        $context[] = $propertyName;
+        $property = $this->schema->getProperty(\implode('.', $context));
+        return ($property !== null) ? $property[0] : null;
     }
 }
