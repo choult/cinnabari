@@ -329,6 +329,28 @@ class OptimizerTest extends PHPUnit_Framework_TestCase
         $this->verify($input, $output);
     }
 
+    public function testInsertSortProperty()
+    {
+        $input = array(Parser::TYPE_FUNCTION, 'insert', array(
+            array(Parser::TYPE_FUNCTION, 'sort', array(
+                array(Parser::TYPE_PROPERTY, 'filter'),
+                array(Parser::TYPE_PROPERTY, 'id')
+            )),
+            array(Parser::TYPE_OBJECT, array(
+                'id' => array(Parser::TYPE_PARAMETER, 'id')
+            ))
+        ));
+
+        $output = array(Parser::TYPE_FUNCTION, 'insert', array(
+            array(Parser::TYPE_PROPERTY, 'filter'),
+            array(Parser::TYPE_OBJECT, array(
+                'id' => array(Parser::TYPE_PARAMETER, 'id')
+            ))
+        ));
+
+        $this->verify($input, $output);
+    }
+
     public function testInsertFilter()
     {
         $input = array(Parser::TYPE_FUNCTION, 'insert', array(
@@ -427,6 +449,33 @@ class OptimizerTest extends PHPUnit_Framework_TestCase
                 array(Parser::TYPE_PROPERTY, 'people'),
                 array(Parser::TYPE_PROPERTY, 'id')
             ))
+        ));
+
+        $this->verify($input, $output);
+    }
+
+    public function testNonmatchingInsertFilter()
+    {
+        $input = array(Parser::TYPE_FUNCTION, 'insert', array(
+            array(Parser::TYPE_FUNCTION, 'filter', array(
+                array(Parser::TYPE_FUNCTION, 'slice', array()),
+                array(Parser::TYPE_FUNCTION, 'equal', array(
+                    array(Parser::TYPE_PROPERTY, 'id'),
+                    array(Parser::TYPE_PARAMETER, 'id')
+                ))
+            )),
+            array(Parser::TYPE_PROPERTY, 'id')
+        ));
+
+        $output = array(Parser::TYPE_FUNCTION, 'insert', array(
+            array(Parser::TYPE_FUNCTION, 'filter', array(
+                array(Parser::TYPE_FUNCTION, 'slice', array()),
+                array(Parser::TYPE_FUNCTION, 'equal', array(
+                    array(Parser::TYPE_PROPERTY, 'id'),
+                    array(Parser::TYPE_PARAMETER, 'id')
+                ))
+            )),
+            array(Parser::TYPE_PROPERTY, 'id')
         ));
 
         $this->verify($input, $output);
