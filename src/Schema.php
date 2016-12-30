@@ -116,6 +116,18 @@ class Schema implements ArrayAccess, Iterator
     }
 
     /**
+     * Gets the primary key for the passed list
+     *
+     * @param string $list
+     *
+     * @return string
+     */
+    public function getPrimaryKey($list)
+    {
+        return 'id';
+    }
+
+    /**
      * Implementing methods for the various accessor interfaces
      */
 
