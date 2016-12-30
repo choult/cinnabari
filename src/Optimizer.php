@@ -35,6 +35,7 @@ class Optimizer
         $request = $this->removeUnusedSorts($request);
         $request = $this->insertDirectly($request);
         $request = $this->filterBeforeSort($request);
+        $request = $this->alwaysSortGets($request);
 
         return $request;
     }
@@ -55,5 +56,11 @@ class Optimizer
     {
         $optimizer = new FilterBeforeSort();
         return $optimizer->optimize($request);
+    }
+
+    private function alwaysSortGets($request)
+    {
+        // Placeholder (for when this code is ready to release)
+        return $request;
     }
 }
