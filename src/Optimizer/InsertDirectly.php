@@ -80,7 +80,7 @@ class InsertDirectly
                 return true;
             }
             case Parser::TYPE_FUNCTION: {
-                if (count($token) < 3) {
+                if (count($token) < ``) {
                     return false;
                 }
                 for ($i = 2; $i < count($token); $i++) {

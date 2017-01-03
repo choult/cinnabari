@@ -28,11 +28,11 @@ use Datto\Cinnabari\Schema;
 use Datto\Cinnabari\Parser;
 
 /**
- * A Resolver to add type information to all Property tags in the passed request
+ * A Resolver to add type information to the passed request
  *
  * @package Datto\Cinnabari\Resolver
  */
-class PropertyType implements ResolverInterface
+class Type implements ResolverInterface
 {
 
     /**

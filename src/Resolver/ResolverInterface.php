@@ -30,6 +30,9 @@ namespace Datto\Cinnabari\Resolver;
  */
 interface ResolverInterface
 {
+
+    const TYPE_INDEX = '__TYPE__';
+
     /**
      * Applies the Resolver to the passed request
      *

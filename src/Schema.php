@@ -36,6 +36,7 @@ class Schema implements ArrayAccess, Iterator
     const TYPE_BOOLEAN = 1;
     const TYPE_INTEGER = 2;
     const TYPE_STRING = 4;
+    const TYPE_LIST = 8;
 
     /**
      * @var array The raw schema data

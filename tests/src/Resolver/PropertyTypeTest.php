@@ -76,16 +76,12 @@ class PropertyTypeTest extends \PHPUnit_Framework_TestCase
                             Parser::TYPE_FUNCTION,
                             'filter',
                             array(
-                                array (Parser::TYPE_PROPERTY, 'devices')
-                            ),
-                            array(
+                                array (Parser::TYPE_PROPERTY, 'devices'),
                                 array(
                                     Parser::TYPE_FUNCTION,
                                     'equals',
                                     array(
-                                        array(Parser::TYPE_PROPERTY, 'id')
-                                    ),
-                                    array(
+                                        array(Parser::TYPE_PROPERTY, 'id'),
                                         array(Parser::TYPE_PARAMETER, 'id')
                                     ),
                                 )
@@ -101,16 +97,12 @@ class PropertyTypeTest extends \PHPUnit_Framework_TestCase
                             Parser::TYPE_FUNCTION,
                             'filter',
                             array(
-                                array (Parser::TYPE_PROPERTY, 'devices', 'Device')
-                            ),
-                            array(
+                                array (Parser::TYPE_PROPERTY, 'devices', 'Device'),
                                 array(
                                     Parser::TYPE_FUNCTION,
                                     'equals',
                                     array(
-                                        array(Parser::TYPE_PROPERTY, 'id', Schema::TYPE_INTEGER)
-                                    ),
-                                    array(
+                                        array(Parser::TYPE_PROPERTY, 'id', Schema::TYPE_INTEGER),
                                         array(Parser::TYPE_PARAMETER, 'id')
                                     ),
                                 )
