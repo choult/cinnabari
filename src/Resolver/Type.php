@@ -26,6 +26,7 @@ namespace Datto\Cinnabari\Resolver;
 
 use Datto\Cinnabari\Schema;
 use Datto\Cinnabari\Parser;
+use Datto\Cinnabari\Functions;
 
 /**
  * A Resolver to add type information to the passed request
@@ -43,20 +44,22 @@ class Type implements ResolverInterface
     private $schema;
 
     /**
-     * A flattened list of types
+     * The definition for the language's functions
      *
-     * @var array|null
+     * @var \Datto\Cinnabari\Functions
      */
-    private $typeTree;
+    private $functions;
 
     /**
-     * Constructs a new PropertyType Resolver
+     * Constructs a new Type Resolver
      *
-     * @param \Datto\Cinnabari\Schema $schema The main schema
+     * @param \Datto\Cinnabari\Schema $schema       The main schema
+     * @param \Datto\Cinnabari\Functions $functions The list of functions to support
      */
-    public function __construct(Schema $schema)
+    public function __construct(Schema $schema, Functions $functions)
     {
         $this->schema = $schema;
+        $this->functions = $functions;
     }
 
     /**
@@ -113,7 +116,7 @@ class Type implements ResolverInterface
                 break;
             }
             case Parser::TYPE_PROPERTY: {
-                $token[2] = $this->getType($token[1], $context);
+                $token[2] = $this->getPropertyType($token[1], $context);
                 break;
             }
         }
@@ -151,6 +154,11 @@ class Type implements ResolverInterface
         return $context;
     }
 
+    private function getFunctionType(array $function)
+    {
+
+    }
+
     /**
      * Gets the type of the passed token in the given context
      *
@@ -159,7 +167,7 @@ class Type implements ResolverInterface
      *
      * @return mixed    Returns null when no property type is found
      */
-    private function getType($propertyName, array $context)
+    private function getPropertyType($propertyName, array $context)
     {
         $context[] = $propertyName;
         $property = $this->schema->getProperty(\implode('.', $context));

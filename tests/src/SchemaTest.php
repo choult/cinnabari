@@ -26,6 +26,7 @@ namespace Datto\Cinnabari\Tests;
 
 use \Mockery;
 use Datto\Cinnabari\Schema;
+use Datto\Cinnabari\Php\Output;
 
 /**
  * @coversDefaultClass \Datto\Cinnabari\Schema
@@ -48,13 +49,31 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name')
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name')
                         )
                     )
                 ),
                 'propertyName' => 'clients.name',
-                'expected' => array(Schema::TYPE_STRING, 'Name')
+                'expected' => array(Output::TYPE_STRING, 'Name')
+            ),
+            'Simple list path' => array(
+                'data' => array(
+                    'classes' => array(
+                        'Database' => array(
+                            'clients' => array('Client', 'Clients')
+                        ),
+                        'Client' => array(
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name')
+                        )
+                    )
+                ),
+                'propertyName' => 'clients',
+                'expected' => array(Output::TYPE_LIST, array(
+                    'id' => array(Output::TYPE_INTEGER, 'Id'),
+                    'name' => array(Output::TYPE_STRING, 'Name')
+                ))
             ),
             'Simple path 2' => array(
                 'data' => array(
@@ -63,13 +82,13 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name')
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name')
                         )
                     )
                 ),
                 'propertyName' => 'clients.id',
-                'expected' => array(Schema::TYPE_INTEGER, 'Id'),
+                'expected' => array(Output::TYPE_INTEGER, 'Id'),
             ),
             'Deep path' => array(
                 'data' => array(
@@ -78,17 +97,17 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name'),
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name'),
                             'reseller' => array('Reseller', 'Reseller'),
                         ),
                         'Reseller' => array(
-                            'name' => array(Schema::TYPE_STRING, 'Name')
+                            'name' => array(Output::TYPE_STRING, 'Name')
                         )
                     )
                 ),
                 'propertyName' => 'clients.reseller.name',
-                'expected' => array(Schema::TYPE_STRING, 'Name')
+                'expected' => array(Output::TYPE_STRING, 'Name')
             ),
             'Unknown path' => array(
                 'data' => array(
@@ -97,8 +116,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name'),
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name'),
                             'reseller' => array('Reseller', 'Reseller'),
                         ),
                     )
@@ -113,8 +132,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name'),
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name'),
                             'reseller' => array('Reseller', 'Reseller'),
                         ),
                     )
@@ -129,8 +148,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                             'clients' => array('Client', 'Clients')
                         ),
                         'Client' => array(
-                            'id' => array(Schema::TYPE_INTEGER, 'Id'),
-                            'name' => array(Schema::TYPE_STRING, 'Name'),
+                            'id' => array(Output::TYPE_INTEGER, 'Id'),
+                            'name' => array(Output::TYPE_STRING, 'Name'),
                             'reseller' => array('Reseller', 'Reseller'),
                         ),
                     )

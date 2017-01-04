@@ -27,16 +27,13 @@ namespace Datto\Cinnabari;
 use \ArrayAccess;
 use \Iterator;
 
+use Datto\Cinnabari\Php\Output;
+
 /**
  * A class to encapsulate the Cinnabari schema, and provide methods to process it
  */
 class Schema implements ArrayAccess, Iterator
 {
-
-    const TYPE_BOOLEAN = 1;
-    const TYPE_INTEGER = 2;
-    const TYPE_STRING = 4;
-    const TYPE_LIST = 8;
 
     /**
      * @var array The raw schema data
@@ -103,14 +100,18 @@ class Schema implements ArrayAccess, Iterator
 
         $property = $this->data['classes'][$className][$propertyName];
         $currentType = $property[0];
-        if (count($remainder)) {
-            if (\in_array($currentType, array(self::TYPE_BOOLEAN, self::TYPE_INTEGER, self::TYPE_STRING))) {
+        if (\count($remainder)) {
+            if (\in_array($currentType, array(Output::TYPE_BOOLEAN, Output::TYPE_INTEGER, Output::TYPE_STRING))) {
                 return null;
             }
 
             // Attach the referenced class to the front of the remaining path and recurse
             \array_unshift($remainder, $currentType);
             return $this->getProperty(\implode('.', $remainder), false);
+        }
+
+        if (!\in_array($currentType, array(Output::TYPE_BOOLEAN, Output::TYPE_INTEGER, Output::TYPE_STRING))) {
+            return array(Output::TYPE_LIST, $this->data['classes'][$property[0]]);
         }
 
         return $property;
